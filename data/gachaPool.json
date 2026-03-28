@@ -1,0 +1,46 @@
+{
+  "nct": [
+    { "name": "Taeyong", "image": "/cards/nct/taeyong.jpg" },
+    { "name": "Jaemin", "image": "/cards/nct/jaemin.jpg" },
+    { "name": "Mark", "image": "/cards/nct/mark.jpg" },
+    { "name": "Jeno", "image": "/cards/nct/jeno.jpg" },
+    { "name": "Haechan", "image": "/cards/nct/haechan.jpg" },
+    { "name": "Renjun", "image": "/cards/nct/renjun.jpg" },
+    { "name": "Chenle", "image": "/cards/nct/chenle.jpg" },
+    { "name": "Jisung", "image": "/cards/nct/jisung.jpg" }
+  ],
+  "seventeen": [
+    { "name": "S.Coups", "image": "/cards/seventeen/scoups.jpg" },
+    { "name": "Jeonghan", "image": "/cards/seventeen/jeonghan.jpg" },
+    { "name": "Joshua", "image": "/cards/seventeen/joshua.jpg" },
+    { "name": "Jun", "image": "/cards/seventeen/jun.jpg" },
+    { "name": "Hoshi", "image": "/cards/seventeen/hoshi.jpg" },
+    { "name": "Wonwoo", "image": "/cards/seventeen/wonwoo.jpg" },
+    { "name": "Woozi", "image": "/cards/seventeen/woozi.jpg" },
+    { "name": "DK", "image": "/cards/seventeen/dk.jpg" },
+    { "name": "Mingyu", "image": "/cards/seventeen/mingyu.jpg" },
+    { "name": "The8", "image": "/cards/seventeen/the8.jpg" },
+    { "name": "Seungkwan", "image": "/cards/seventeen/seungkwan.jpg" },
+    { "name": "Vernon", "image": "/cards/seventeen/vernon.jpg" },
+    { "name": "Dino", "image": "/cards/seventeen/dino.jpg" }
+  ],
+  "straykids": [
+    { "name": "Bang Chan", "image": "/cards/straykids/bangchan.jpg" },
+    { "name": "Lee Know", "image": "/cards/straykids/leeknow.jpg" },
+    { "name": "Changbin", "image": "/cards/straykids/changbin.jpg" },
+    { "name": "Hyunjin", "image": "/cards/straykids/hyunjin.jpg" },
+    { "name": "Han", "image": "/cards/straykids/han.jpg" },
+    { "name": "Felix", "image": "/cards/straykids/felix.jpg" },
+    { "name": "Seungmin", "image": "/cards/straykids/seungmin.jpg" },
+    { "name": "I.N", "image": "/cards/straykids/in.jpg" }
+  ],
+  "bts": [
+    { "name": "RM", "image": "/cards/bts/rm.jpg" },
+    { "name": "Jin", "image": "/cards/bts/jin.jpg" },
+    { "name": "Suga", "image": "/cards/bts/suga.jpg" },
+    { "name": "J-Hope", "image": "/cards/bts/jhope.jpg" },
+    { "name": "Jimin", "image": "/cards/bts/jimin.jpg" },
+    { "name": "V", "image": "/cards/bts/v.jpg" },
+    { "name": "Jungkook", "image": "/cards/bts/jungkook.jpg" }
+  ]
+}
