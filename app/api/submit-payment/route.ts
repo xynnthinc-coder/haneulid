@@ -18,13 +18,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save proof file
+    // Convert file to Base64 string since Vercel has a read-only filesystem
     const buffer = Buffer.from(await proofFile.arrayBuffer());
-    const fileName = `${Date.now()}-${proofFile.name}`;
-    const filePath = path.join(process.cwd(), "public", "uploads", fileName);
-    await fs.writeFile(filePath, buffer);
-
-    const proofUrl = `/uploads/${fileName}`;
+    const mimeType = proofFile.type || 'image/jpeg';
+    const base64Data = buffer.toString('base64');
+    const proofUrl = `data:${mimeType};base64,${base64Data}`;
     const id = generateId();
 
     const transaction = await createTransaction({

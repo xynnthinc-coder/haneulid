@@ -15,7 +15,7 @@ model Transaction {
   used        Boolean  @default(false)
   createdAt   DateTime @default(now())
   phoneNumber String?
-  proofUrl    String?
+  proofUrl    String?  @db.LongText
 }
 
 model Setting {
