@@ -12,6 +12,15 @@ export default function RedeemPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isValidating, setIsValidating] = useState(false);
 
+  React.useEffect(() => {
+    // Read from window to avoid Next.js build errors for useSearchParams without Suspense
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("token");
+    if (code) {
+      setToken(code.toUpperCase());
+    }
+  }, []);
+
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token.trim()) {
