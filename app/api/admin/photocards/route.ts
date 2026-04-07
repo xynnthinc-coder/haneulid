@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllPhotocards, updateStock } from "@/lib/photocardStore";
 
+export const dynamic = "force-dynamic";
+
 // GET: List all photocards (admin)
 export async function GET() {
   try {
