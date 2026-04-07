@@ -164,7 +164,7 @@ export default function AdminDashboard() {
       if (data.success) {
         const token = data.token;
         const msg = encodeURIComponent(
-          `🎉 *PEMBAYARAN DIVERIFIKASI!* 🎉\n\nHalo! Makasih udah jajan di Haneul Gacha Box. Ini Token K-Pop khusus buat kamu:\n\n✨ *${token}* ✨\n\n*(Tahan pesan ini lalu pilih Copy/Salin kalau mau input manual)*\n\n👇 *CARA CEPET: TINGGAL KLIK LINK INI!* 👇\n${window.location.origin}/redeem?token=${token}`
+          `*Pembayaran telah diverifikasi!*\n\nTerima kasih telah berbelanja di Haneul Gacha Box!\n\nToken Gacha K-Pop kamu:\n*${token}*\n\nKlik link ini untuk klaim token secara otomatis:\n${window.location.origin}/redeem?token=${token}`
         );
         const cleanPhone = phone?.replace(/\D/g, '') || '';
         const waPhone = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone.startsWith('8') ? '62' + cleanPhone : cleanPhone;
