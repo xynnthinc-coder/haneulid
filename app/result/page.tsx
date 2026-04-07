@@ -1,13 +1,14 @@
 "use client";
 // app/result/page.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Share, Home, Gift, AlertCircle, CheckCircle } from "lucide-react";
 import PhotocardResult from "@/components/PhotocardResult";
 import Confetti from "@/components/Confetti";
 import StarBackground from "@/components/StarBackground";
 
-export default function ResultPage() {
+function ResultContent() {
   const searchParams = useSearchParams();
 
   const name = searchParams.get("name") ?? "";
@@ -30,17 +31,41 @@ export default function ResultPage() {
   }, []);
 
   const handleShare = async () => {
-    const text = `✨ I just got ${name}'s photocard from ${group} on K-Pop Gacha Box! 🎁`;
+    const text = `Aku barusan dapet photocard ${name} dari ${group} di K-Pop Gacha Box!`;
 
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "K-Pop Gacha Result!", text });
-      } catch (err) {
-        // User cancelled
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Hasil K-Pop Gacha!", text });
+        return; // Kalau share sukses, gak perlu copy
       }
-    } else {
-      await navigator.clipboard.writeText(text);
-      setShareMsg("Copied to clipboard! 📋");
+    } catch (err) {
+      // Share API might throw AbortError if user closes the share dialog, ignore it.
+      if ((err as Error).name !== 'AbortError') {
+        console.error("Error sharing:", err);
+      }
+      return; 
+    }
+
+    // Fallback to Clipboard API or execCommand (if over local network HTTP)
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for non-HTTPS local network testing
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setShareMsg("Berhasil disalin ke clipboard!");
+      setTimeout(() => setShareMsg(""), 3000);
+    } catch (err) {
+      setShareMsg("Butuh HTTPS / localhost");
       setTimeout(() => setShareMsg(""), 3000);
     }
   };
@@ -49,10 +74,10 @@ export default function ResultPage() {
     return (
       <main className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-6xl mb-4">🎴</p>
-          <p className="font-bold text-gray-500 mb-4">No result to display.</p>
+          <AlertCircle size={64} className="mx-auto text-gray-300 mb-4" strokeWidth={1} />
+          <p className="font-extrabold text-gray-500 mb-4 uppercase tracking-wide">Gak ada hasil yang ditampilkan</p>
           <Link href="/">
-            <button className="btn-primary">Back to Home</button>
+            <button className="btn-primary">Balik ke Beranda</button>
           </Link>
         </div>
       </main>
@@ -64,34 +89,33 @@ export default function ResultPage() {
       <StarBackground />
       <Confetti active={showConfetti} />
 
-      <div className="relative z-10 max-w-md mx-auto w-full flex flex-col items-center">
+      <div className="relative z-10 max-w-md md:max-w-xl lg:max-w-2xl mx-auto w-full flex flex-col items-center">
         {/* Header */}
         <div className="text-center mb-6 animate-slide_up">
           <div
-            className="inline-block mb-3 px-5 py-2 rounded-full text-sm font-black tracking-widest uppercase"
+            className="inline-block mb-3 px-5 py-2 rounded-full text-sm font-extrabold tracking-widest uppercase"
             style={{
-              background: "linear-gradient(135deg, #FFB7C5, #E5C4FF)",
+              background: "linear-gradient(135deg, #FF99B7, #E5C4FF)",
               color: "white",
-              boxShadow: "0 4px 16px rgba(255, 143, 171, 0.4)",
+              boxShadow: "0 4px 16px rgba(255, 153, 183, 0.3)",
             }}
           >
-            ✨ YOU GOT!
+            KAMU DAPET
           </div>
 
           <h1
-            className="text-3xl sm:text-4xl font-black leading-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight font-display"
             style={{
               background: "linear-gradient(135deg, #FF8FAB, #B8E0FF, #E5C4FF)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-              fontFamily: "var(--font-nunito)",
             }}
           >
             {name}
           </h1>
           <p
-            className="text-sm font-black tracking-widest uppercase mt-1"
+            className="text-sm lg:text-base font-extrabold tracking-widest uppercase mt-2"
             style={{ color: "#7EC8E3" }}
           >
             {group}
@@ -111,24 +135,16 @@ export default function ResultPage() {
           />
         </div>
 
-        {/* Celebration text */}
         <div
-          className="w-full rounded-3xl p-5 mb-6 text-center animate-slide_up delay-400"
-          style={{
-            background: "rgba(255, 255, 255, 0.7)",
-            border: "2px solid rgba(255, 183, 197, 0.4)",
-            backdropFilter: "blur(12px)",
-          }}
+          className="w-full rounded-3xl p-5 mb-6 text-center animate-slide_up delay-400 shadow-sm glass-panel"
         >
-          <p className="text-2xl mb-2">🎉</p>
-          <p className="font-black text-gray-700 text-lg mb-1">
-            Congratulations!
+          <p className="font-extrabold text-gray-800 text-lg lg:text-xl mb-1 mt-1 tracking-tight">
+            Selamat!
           </p>
-          <p className="text-sm text-gray-400 font-semibold leading-relaxed">
-            You received <strong style={{ color: "#FF5C8A" }}>{name}</strong>'s
-            photocard from <strong style={{ color: "#7EC8E3" }}>{group}</strong>!
+          <p className="text-sm lg:text-base text-gray-500 font-semibold leading-relaxed">
+            Kamu berhasil dapet photocard <strong style={{ color: "#FF5C8A" }}>{name}</strong> dari <strong style={{ color: "#7EC8E3" }}>{group}</strong>.
             <br />
-            Hope this is your bias! 💕
+            Semoga ini bias kamu ya!
           </p>
         </div>
 
@@ -137,16 +153,16 @@ export default function ResultPage() {
           {/* Share button */}
           <button
             onClick={handleShare}
-            className="w-full rounded-2xl py-4 font-bold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full rounded-full py-3.5 sm:py-4 font-extrabold text-base sm:text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             style={{
-              background: "linear-gradient(135deg, #E5C4FF, #B8E0FF)",
-              color: "#9B59FF",
-              boxShadow: "0 8px 24px rgba(155, 89, 255, 0.25)",
+              background: "linear-gradient(135deg, #E5C4FF, #D6EEFF)",
+              color: "#8B49FF",
+              boxShadow: "0 8px 30px rgba(139, 73, 255, 0.2)",
             }}
           >
             <span className="flex items-center justify-center gap-2">
-              <span>📤</span>
-              <span>Share Result</span>
+              <Share size={20} strokeWidth={2.5} />
+              <span>Bagikan Hasil</span>
             </span>
           </button>
 
@@ -154,8 +170,8 @@ export default function ResultPage() {
           <Link href="/" className="w-full">
             <button className="w-full btn-primary">
               <span className="flex items-center justify-center gap-2">
-                <span>🏠</span>
-                <span>Back to Home</span>
+                <Home size={20} />
+                <span>Balik ke Beranda</span>
               </span>
             </button>
           </Link>
@@ -163,17 +179,11 @@ export default function ResultPage() {
           {/* Try again */}
           <Link href="/group" className="w-full">
             <button
-              className="w-full rounded-2xl py-4 font-bold text-base transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                background: "rgba(255, 255, 255, 0.7)",
-                border: "2px solid rgba(255, 183, 197, 0.4)",
-                color: "#FF8FAB",
-                backdropFilter: "blur(8px)",
-              }}
+              className="w-full rounded-full py-3.5 sm:py-4 font-extrabold text-base sm:text-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_8px_30px_rgb(0,0,0,0.04)] glass-card text-pink-500"
             >
               <span className="flex items-center justify-center gap-2">
-                <span>🎁</span>
-                <span>Open Another Box!</span>
+                <Gift size={20} />
+                <span>Buka Box Lagi</span>
               </span>
             </button>
           </Link>
@@ -182,18 +192,27 @@ export default function ResultPage() {
         {/* Share copy message */}
         {shareMsg && (
           <div
-            className="mt-4 px-4 py-2 rounded-xl text-sm font-semibold animate-slide_up"
-            style={{ background: "#C4F5E0", color: "#2D8C5A" }}
+            className="mt-4 px-4 py-2 rounded-xl text-sm font-semibold animate-slide_up flex items-center justify-center gap-2 mx-auto"
+            style={{ background: "#E8FDF3", color: "#2D8C5A", border: "1px solid #C4F5E0" }}
           >
+            <CheckCircle size={16} />
             {shareMsg}
           </div>
         )}
 
         {/* Footer note */}
-        <p className="text-xs text-gray-300 mt-6 text-center font-semibold">
-          All members had equal probability ✦ Made with 💕
+        <p className="text-xs text-gray-400 mt-6 text-center font-semibold">
+          Semua member punya peluang yang sama ❆ Dibuat dengan penuh cinta
         </p>
       </div>
     </main>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ResultContent />
+    </Suspense>
   );
 }

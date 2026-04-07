@@ -34,10 +34,11 @@ export default function PhotocardResult({
 
   // Group-based gradient colors
   const groupGradients: Record<string, string> = {
-    NCT: "from-pink-200 via-pink-100 to-rose-50",
-    SEVENTEEN: "from-blue-200 via-blue-100 to-sky-50",
-    "STRAY KIDS": "from-purple-200 via-purple-100 to-violet-50",
-    BTS: "from-yellow-200 via-yellow-100 to-amber-50",
+    TREASURE: "from-yellow-200 via-yellow-100 to-amber-50",
+    "NCT DREAM": "from-blue-200 via-blue-100 to-sky-50",
+    "NCT 127": "from-pink-200 via-pink-100 to-rose-50",
+    SEVENTEEN: "from-purple-200 via-purple-100 to-violet-50",
+    ENHYPEN: "from-green-200 via-green-100 to-emerald-50",
   };
 
   const gradient = groupGradients[group] || "from-pink-200 via-pink-100 to-rose-50";

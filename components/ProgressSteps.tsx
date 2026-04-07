@@ -5,7 +5,7 @@ interface ProgressStepsProps {
 }
 
 export default function ProgressSteps({ currentStep }: ProgressStepsProps) {
-  const steps = ["Group", "Payment", "Gacha"];
+  const steps = ["Grup", "Bayar", "Gacha"];
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 mb-6 w-full">

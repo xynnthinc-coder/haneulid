@@ -4,53 +4,57 @@ export interface Group {
   id: string;
   name: string;
   color: string;
-  bgGradient: string;
   accent: string;
-  emoji: string;
   members: number;
   tagline: string;
+  image: string; // Group photo URL
 }
 
 export const GROUPS: Group[] = [
   {
-    id: "nct",
-    name: "NCT",
+    id: "treasure",
+    name: "TREASURE",
+    color: "#FFD166",
+    accent: "#F5A623",
+    members: 10,
+    tagline: "Find Your Treasure",
+    image: "/groups/treasure.jpeg",
+  },
+  {
+    id: "nctdream",
+    name: "NCT DREAM",
+    color: "#7EC8E3",
+    accent: "#4EADE3",
+    members: 7,
+    tagline: "We Go Up!",
+    image: "/groups/nct_dream.jpg",
+  },
+  {
+    id: "nct127",
+    name: "NCT 127",
     color: "#FF8FAB",
-    bgGradient: "from-pastel-pink to-pastel-pink-light",
     accent: "#FF5C8A",
-    emoji: "🌙",
-    members: 23,
-    tagline: "Neo Culture Technology",
+    members: 9,
+    tagline: "Neo Culture Technology 127",
+    image: "/groups/nct_127.jpg",
   },
   {
     id: "seventeen",
     name: "SEVENTEEN",
-    color: "#7EC8E3",
-    bgGradient: "from-pastel-blue to-pastel-blue-light",
-    accent: "#4EADE3",
-    emoji: "💎",
+    color: "#C9A8FF",
+    accent: "#9B59FF",
     members: 13,
     tagline: "13 Members, 3 Units, 1 Team",
+    image: "/groups/seventeen.jpg",
   },
   {
-    id: "straykids",
-    name: "STRAY KIDS",
-    color: "#C9A8FF",
-    bgGradient: "from-pastel-purple to-pastel-blue-light",
-    accent: "#9B59FF",
-    emoji: "🔥",
-    members: 8,
-    tagline: "District 9: Unlock",
-  },
-  {
-    id: "bts",
-    name: "BTS",
-    color: "#FFD166",
-    bgGradient: "from-pastel-yellow to-pastel-cream",
-    accent: "#F5A623",
-    emoji: "✨",
+    id: "enhypen",
+    name: "ENHYPEN",
+    color: "#A8E6CF",
+    accent: "#56C596",
     members: 7,
-    tagline: "Bangtan Sonyeondan",
+    tagline: "Connect the World",
+    image: "/groups/enhypen.jpg",
   },
 ];
 

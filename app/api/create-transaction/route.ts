@@ -20,13 +20,12 @@ export async function POST(req: NextRequest) {
     const token = generateGachaToken();
     const id = generateId();
 
-    const transaction = createTransaction({
+    const transaction = await createTransaction({
       id,
       token,
       group,
       status: "pending",
       used: false,
-      createdAt: new Date().toISOString(),
     });
 
     return NextResponse.json({

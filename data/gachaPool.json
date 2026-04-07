@@ -1,13 +1,35 @@
 {
-  "nct": [
-    { "name": "Taeyong", "image": "/cards/nct/taeyong.jpg" },
-    { "name": "Jaemin", "image": "/cards/nct/jaemin.jpg" },
-    { "name": "Mark", "image": "/cards/nct/mark.jpg" },
-    { "name": "Jeno", "image": "/cards/nct/jeno.jpg" },
-    { "name": "Haechan", "image": "/cards/nct/haechan.jpg" },
-    { "name": "Renjun", "image": "/cards/nct/renjun.jpg" },
-    { "name": "Chenle", "image": "/cards/nct/chenle.jpg" },
-    { "name": "Jisung", "image": "/cards/nct/jisung.jpg" }
+  "treasure": [
+    { "name": "Choi Hyunsuk", "image": "/cards/treasure/choihyunsuk.jpg" },
+    { "name": "Jihoon", "image": "/cards/treasure/jihoon.jpg" },
+    { "name": "Yoshi", "image": "/cards/treasure/yoshi.jpg" },
+    { "name": "Junkyu", "image": "/cards/treasure/junkyu.jpg" },
+    { "name": "Mashiho", "image": "/cards/treasure/mashiho.jpg" },
+    { "name": "Jaehyuk", "image": "/cards/treasure/jaehyuk.jpg" },
+    { "name": "Asahi", "image": "/cards/treasure/asahi.jpg" },
+    { "name": "Doyoung", "image": "/cards/treasure/doyoung.jpg" },
+    { "name": "Haruto", "image": "/cards/treasure/haruto.jpg" },
+    { "name": "Jeongwoo", "image": "/cards/treasure/jeongwoo.jpg" }
+  ],
+  "nctdream": [
+    { "name": "Mark", "image": "/cards/nctdream/mark.jpg" },
+    { "name": "Renjun", "image": "/cards/nctdream/renjun.jpg" },
+    { "name": "Jeno", "image": "/cards/nctdream/jeno.jpg" },
+    { "name": "Haechan", "image": "/cards/nctdream/haechan.jpg" },
+    { "name": "Jaemin", "image": "/cards/nctdream/jaemin.jpg" },
+    { "name": "Chenle", "image": "/cards/nctdream/chenle.jpg" },
+    { "name": "Jisung", "image": "/cards/nctdream/jisung.jpg" }
+  ],
+  "nct127": [
+    { "name": "Taeyong", "image": "/cards/nct127/taeyong.jpg" },
+    { "name": "Taeil", "image": "/cards/nct127/taeil.jpg" },
+    { "name": "Johnny", "image": "/cards/nct127/johnny.jpg" },
+    { "name": "Yuta", "image": "/cards/nct127/yuta.jpg" },
+    { "name": "Doyoung", "image": "/cards/nct127/doyoung.jpg" },
+    { "name": "Jaehyun", "image": "/cards/nct127/jaehyun.jpg" },
+    { "name": "Jungwoo", "image": "/cards/nct127/jungwoo.jpg" },
+    { "name": "Mark", "image": "/cards/nct127/mark.jpg" },
+    { "name": "Haechan", "image": "/cards/nct127/haechan.jpg" }
   ],
   "seventeen": [
     { "name": "S.Coups", "image": "/cards/seventeen/scoups.jpg" },
@@ -24,23 +46,13 @@
     { "name": "Vernon", "image": "/cards/seventeen/vernon.jpg" },
     { "name": "Dino", "image": "/cards/seventeen/dino.jpg" }
   ],
-  "straykids": [
-    { "name": "Bang Chan", "image": "/cards/straykids/bangchan.jpg" },
-    { "name": "Lee Know", "image": "/cards/straykids/leeknow.jpg" },
-    { "name": "Changbin", "image": "/cards/straykids/changbin.jpg" },
-    { "name": "Hyunjin", "image": "/cards/straykids/hyunjin.jpg" },
-    { "name": "Han", "image": "/cards/straykids/han.jpg" },
-    { "name": "Felix", "image": "/cards/straykids/felix.jpg" },
-    { "name": "Seungmin", "image": "/cards/straykids/seungmin.jpg" },
-    { "name": "I.N", "image": "/cards/straykids/in.jpg" }
-  ],
-  "bts": [
-    { "name": "RM", "image": "/cards/bts/rm.jpg" },
-    { "name": "Jin", "image": "/cards/bts/jin.jpg" },
-    { "name": "Suga", "image": "/cards/bts/suga.jpg" },
-    { "name": "J-Hope", "image": "/cards/bts/jhope.jpg" },
-    { "name": "Jimin", "image": "/cards/bts/jimin.jpg" },
-    { "name": "V", "image": "/cards/bts/v.jpg" },
-    { "name": "Jungkook", "image": "/cards/bts/jungkook.jpg" }
+  "enhypen": [
+    { "name": "Heeseung", "image": "/cards/enhypen/heeseung.jpg" },
+    { "name": "Jay", "image": "/cards/enhypen/jay.jpg" },
+    { "name": "Jake", "image": "/cards/enhypen/jake.jpg" },
+    { "name": "Sunghoon", "image": "/cards/enhypen/sunghoon.jpg" },
+    { "name": "Sunoo", "image": "/cards/enhypen/sunoo.jpg" },
+    { "name": "Jungwon", "image": "/cards/enhypen/jungwon.jpg" },
+    { "name": "Ni-ki", "image": "/cards/enhypen/niki.jpg" }
   ]
 }

@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 import "./globals.css";
 
+import StoreStatusOverlay from "@/components/StoreStatusOverlay";
+
 const nunito = Nunito({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -10,13 +12,13 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "✨ K-Pop Gacha Box | Mystery Photocard Shop",
+  title: "✨ K-Pop Gacha Box | Blind Box Photocard Kamu",
   description:
-    "Open mystery blind boxes to discover exclusive K-pop photocards from your favorite groups!",
+    "Buka mystery blind box dan dapetin photocard K-pop eksklusif dari grup favorit kamu!",
   keywords: "kpop, gacha, photocard, blind box, NCT, BTS, SEVENTEEN, Stray Kids",
   openGraph: {
     title: "✨ K-Pop Gacha Box",
-    description: "Discover mystery photocards from your favorite K-pop groups!",
+    description: "Dapetin photocard mystery dari grup K-pop favorit kamu!",
     type: "website",
   },
 };
@@ -35,6 +37,7 @@ export default function RootLayout({
           fontFamily: "var(--font-nunito), sans-serif",
         }}
       >
+        <StoreStatusOverlay />
         {children}
       </body>
     </html>

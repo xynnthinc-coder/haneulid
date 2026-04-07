@@ -27,15 +27,30 @@ export async function POST(req: NextRequest) {
     const proofUrl = `/uploads/${fileName}`;
     const id = generateId();
 
-    const transaction = createTransaction({
+    const transaction = await createTransaction({
       id,
       group,
       status: "pending",
       used: false,
-      createdAt: new Date().toISOString(),
       phoneNumber,
       proofUrl,
     });
+
+    const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+    const telegramChatId = process.env.TELEGRAM_CHAT_ID;
+
+    if (telegramBotToken && telegramChatId) {
+      const message = `🚨 *PESANAN BARU MASUK!* 🚨\n\n👤 *WhatsApp:* ${phoneNumber}\n💳 *Grup:* ${group.toUpperCase()}\n\n[🔗 Cek Dashboard Admin](${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/admin)`;
+      fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: telegramChatId,
+          text: message,
+          parse_mode: "Markdown",
+        }),
+      }).catch((err) => console.error("Telegram Error:", err));
+    }
 
     return NextResponse.json({
       success: true,

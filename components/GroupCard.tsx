@@ -2,106 +2,251 @@
 // components/GroupCard.tsx
 import React, { useState } from "react";
 import { Group } from "@/lib/groups";
+import { Users, ChevronRight, Eye } from "lucide-react";
+import Link from "next/link";
 
 interface GroupCardProps {
   group: Group;
   onSelect: (group: Group) => void;
   isSelected?: boolean;
+  availableCount?: number;
+  totalCount?: number;
 }
 
-export default function GroupCard({ group, onSelect, isSelected }: GroupCardProps) {
+export default function GroupCard({ group, onSelect, isSelected, availableCount, totalCount }: GroupCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
-  const gradients: Record<string, string> = {
-    nct: "linear-gradient(135deg, #FFB7C5 0%, #FFD6DF 50%, #FFE8F0 100%)",
-    seventeen: "linear-gradient(135deg, #B8E0FF 0%, #D6EEFF 50%, #EAF5FF 100%)",
-    straykids: "linear-gradient(135deg, #E5C4FF 0%, #F0D8FF 50%, #F7EEFF 100%)",
-    bts: "linear-gradient(135deg, #FFF1C1 0%, #FFF8DC 50%, #FFFAED 100%)",
-  };
+  const hasStockInfo = availableCount !== undefined && totalCount !== undefined;
+  const isSoldOut = hasStockInfo && availableCount === 0;
+  const isLowStock = hasStockInfo && availableCount > 0 && availableCount <= 2;
+  const stockPercent = hasStockInfo && totalCount > 0 ? (availableCount / totalCount) * 100 : 100;
 
   return (
-    <button
-      onClick={() => onSelect(group)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`
-        relative w-full text-left rounded-3xl overflow-hidden transition-all duration-300
-        focus:outline-none focus:ring-4 focus:ring-offset-2
-        ${isSelected ? "scale-105 ring-4" : ""}
-        ${isHovered ? "scale-105 -translate-y-1" : "scale-100"}
-      `}
-      style={{
-        background: gradients[group.id] || gradients.nct,
-        boxShadow: isHovered
-          ? `0 20px 40px ${group.color}60`
-          : `0 8px 24px ${group.color}30`,
-        border: `2px solid ${group.color}60`,
-        transition: "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-      }}
-    >
-      {/* Card content */}
-      <div className="p-5">
-        {/* Emoji + group name row */}
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-3xl">{group.emoji}</span>
-          <div>
-            <h3
-              className="font-black text-xl leading-tight"
-              style={{ color: "#2D2D2D", fontFamily: "var(--font-nunito)" }}
+    <div className="relative">
+      <button
+        onClick={() => !isSoldOut && onSelect(group)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className={`
+          group relative w-full text-left rounded-2xl overflow-hidden
+          focus:outline-none focus:ring-4 focus:ring-offset-2
+          ${isSelected ? "ring-4" : ""}
+          ${isSoldOut ? "cursor-not-allowed" : "cursor-pointer"}
+        `}
+        style={{
+          aspectRatio: "3 / 4",
+          transform: isHovered && !isSoldOut ? "translateY(-8px) scale(1.02)" : "translateY(0) scale(1)",
+          boxShadow: isHovered && !isSoldOut
+            ? `0 24px 48px ${group.color}50, 0 0 0 1px ${group.color}30`
+            : `0 8px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)`,
+          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          filter: isSoldOut ? "grayscale(0.6)" : "none",
+        }}
+        disabled={isSoldOut}
+      >
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          {!imageError ? (
+            <img
+              src={group.image}
+              alt={group.name}
+              className="w-full h-full object-cover"
+              style={{
+                transform: isHovered && !isSoldOut ? "scale(1.08)" : "scale(1)",
+                transition: "transform 0.6s cubic-bezier(0.33, 1, 0.68, 1)",
+              }}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              style={{
+                background: `linear-gradient(135deg, ${group.color}40 0%, ${group.accent}30 100%)`,
+              }}
             >
-              {group.name}
-            </h3>
-            <p className="text-xs font-medium" style={{ color: group.accent }}>
-              {group.members} members
-            </p>
-          </div>
+              <span
+                className="font-black text-4xl sm:text-5xl tracking-tighter opacity-20"
+                style={{ color: group.accent }}
+              >
+                {group.name}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Tagline */}
-        <p className="text-xs text-gray-500 font-medium leading-relaxed">
-          {group.tagline}
-        </p>
+        {/* Dark gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(
+              to top,
+              rgba(0,0,0,0.85) 0%,
+              rgba(0,0,0,0.5) 35%,
+              rgba(0,0,0,0.1) 60%,
+              transparent 100%
+            )`,
+          }}
+        />
 
-        {/* Arrow indicator */}
-        <div className="flex items-center justify-end mt-3">
-          <div
-            className={`rounded-full p-2 transition-all duration-300 ${isHovered ? "translate-x-1" : ""}`}
-            style={{ background: `${group.color}40` }}
+        {/* Sold Out overlay */}
+        {isSoldOut && (
+          <div className="absolute inset-0 flex items-center justify-center z-20"
+            style={{ background: "rgba(0,0,0,0.4)" }}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={group.accent}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <div
+              className="px-5 py-2 rounded-full font-black text-sm uppercase tracking-wider"
+              style={{
+                background: "rgba(239, 68, 68, 0.9)",
+                color: "white",
+                transform: "rotate(-12deg)",
+                boxShadow: "0 4px 16px rgba(239, 68, 68, 0.4)",
+              }}
             >
-              <path d="M5 12h14M12 5l7 7-7 7" />
+              Habis
+            </div>
+          </div>
+        )}
+
+        {/* Top accent bar */}
+        <div
+          className="absolute top-0 left-0 right-0 h-1"
+          style={{
+            background: `linear-gradient(90deg, ${group.color}, ${group.accent})`,
+            opacity: isHovered ? 1 : 0.6,
+            transition: "opacity 0.3s ease",
+          }}
+        />
+
+        {/* Selected indicator badge */}
+        {isSelected && (
+          <div
+            className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center z-10"
+            style={{ background: group.accent }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
+        )}
+
+        {/* Content overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 z-10">
+          {/* Group name */}
+          <h3
+            className="font-black text-lg sm:text-xl tracking-wide text-white mb-1 leading-tight"
+            style={{ fontFamily: "var(--font-nunito)", textShadow: "0 2px 8px rgba(0,0,0,0.3)" }}
+          >
+            {group.name}
+          </h3>
+
+          {/* Tagline */}
+          <p
+            className="text-[11px] sm:text-xs font-medium mb-3 leading-relaxed"
+            style={{
+              color: `${group.color}`,
+              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            {group.tagline}
+          </p>
+
+          {/* Stock progress bar */}
+          {hasStockInfo && (
+            <div className="mb-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold text-white/70">
+                  {availableCount}/{totalCount} tersedia
+                </span>
+                {isLowStock && (
+                  <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider animate-pulse">
+                    Stok sedikit!
+                  </span>
+                )}
+              </div>
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.15)" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${stockPercent}%`,
+                    background: isSoldOut
+                      ? "#EF4444"
+                      : isLowStock
+                        ? "#F59E0B"
+                        : `linear-gradient(90deg, ${group.color}, ${group.accent})`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Bottom row: members + arrow */}
+          <div className="flex items-center justify-between">
+            <div
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold"
+              style={{
+                background: `${group.accent}30`,
+                color: group.color,
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <Users size={12} strokeWidth={2.5} />
+              <span>{group.members} member</span>
+            </div>
+
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{
+                background: `${group.accent}40`,
+                transform: isHovered && !isSoldOut ? "translateX(4px)" : "translateX(0)",
+                transition: "all 0.3s ease",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <ChevronRight
+                size={16}
+                strokeWidth={2.5}
+                style={{ color: group.color }}
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Decorative dots */}
-      <div
-        className="absolute top-3 right-4 opacity-30"
-        style={{ fontSize: "28px", color: group.color }}
-      >
-        ✦
-      </div>
+        {/* Hover shimmer effect */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+            opacity: isHovered && !isSoldOut ? 1 : 0,
+            transition: "opacity 0.4s ease",
+          }}
+        />
 
-      {/* Subtle shine effect */}
-      <div
-        className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${
-          isHovered ? "opacity-100" : "opacity-0"
-        }`}
+        {/* Colored glow on hover at bottom */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-1/3 pointer-events-none"
+          style={{
+            background: `linear-gradient(to top, ${group.color}15, transparent)`,
+            opacity: isHovered && !isSoldOut ? 1 : 0,
+            transition: "opacity 0.4s ease",
+          }}
+        />
+      </button>
+
+      {/* View Detail Button - below card */}
+      <Link
+        href={`/collection/${group.id}`}
+        className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all hover:scale-[1.02]"
         style={{
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%)",
+          background: `${group.color}20`,
+          color: group.accent,
+          border: `1px solid ${group.color}30`,
         }}
-      />
-    </button>
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Eye size={13} strokeWidth={2.5} />
+        Cek Detail
+      </Link>
+    </div>
   );
 }

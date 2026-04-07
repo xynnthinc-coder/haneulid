@@ -13,7 +13,7 @@ export interface Transaction {
   proofUrl?: string | null;
 }
 
-export async function createTransaction(data: Omit<Transaction, "id" | "createdAt" | "token"> & { id?: string }): Promise<Transaction> {
+export async function createTransaction(data: Omit<Transaction, "id" | "createdAt"> & { id?: string }): Promise<Transaction> {
   const transaction = await prisma.transaction.create({
     data: {
       ...data,
@@ -55,3 +55,18 @@ export async function getAllTransactions(): Promise<Transaction[]> {
   });
 }
 
+export async function deleteTransaction(id: string): Promise<boolean> {
+  try {
+    await prisma.transaction.delete({ where: { id } });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+export async function clearTransactionHistory(): Promise<number> {
+  const result = await prisma.transaction.deleteMany({
+    where: { status: { not: "pending" } },
+  });
+  return result.count;
+}

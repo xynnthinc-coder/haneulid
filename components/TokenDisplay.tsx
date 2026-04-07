@@ -24,7 +24,7 @@ export default function TokenDisplay({ token }: TokenDisplayProps) {
       }}
     >
       <p className="text-xs font-semibold text-gray-400 mb-2 tracking-widest uppercase">
-        Your Gacha Token
+        Token Gacha Kamu
       </p>
       <div className="flex items-center justify-center gap-3">
         <span
@@ -37,7 +37,7 @@ export default function TokenDisplay({ token }: TokenDisplayProps) {
           onClick={copyToClipboard}
           className="rounded-xl p-2 transition-all duration-200 hover:scale-110"
           style={{ background: copied ? "#C4F5E0" : "#FFB7C5" }}
-          title="Copy token"
+          title="Salin token"
         >
           {copied ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -61,7 +61,7 @@ export default function TokenDisplay({ token }: TokenDisplayProps) {
           )}
         </button>
       </div>
-      <p className="text-xs text-gray-400 mt-2">Save this token — you'll need it to open your box!</p>
+      <p className="text-xs text-gray-400 mt-2">Simpan token ini ya — kamu butuh ini buat buka box kamu!</p>
     </div>
   );
 }

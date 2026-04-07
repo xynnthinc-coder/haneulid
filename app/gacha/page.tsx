@@ -1,8 +1,9 @@
 "use client";
 // app/gacha/page.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { Search, AlertCircle, Gift, Info } from "lucide-react";
 import MysteryBox from "@/components/MysteryBox";
 import StarBackground from "@/components/StarBackground";
 import ProgressSteps from "@/components/ProgressSteps";
@@ -16,7 +17,7 @@ interface GachaResult {
   image: string;
 }
 
-export default function GachaPage() {
+function GachaContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token") ?? "";
@@ -32,7 +33,7 @@ export default function GachaPage() {
   useEffect(() => {
     if (!token) {
       setState("invalid");
-      setErrorMsg("No token provided. Please complete payment first.");
+      setErrorMsg("Tokennya gak ada nih. Selesaikan pembayaran dulu ya.");
       return;
     }
     validateToken();
@@ -55,11 +56,11 @@ export default function GachaPage() {
 
       if (!data.valid) {
         if (data.status === "used") {
-          setErrorMsg("This token has already been used. Each box can only be opened once! 😢");
+          setErrorMsg("Token ini udah kepake. Setiap box cuma bisa dibuka sekali! 😢");
         } else if (data.status === "pending") {
-          setErrorMsg("Payment not verified yet. Please upload your payment proof.");
+          setErrorMsg("Pembayaran belum diverifikasi. Upload bukti pembayaran kamu dulu ya.");
         } else {
-          setErrorMsg(data.error ?? "Invalid token. Please complete payment first.");
+          setErrorMsg(data.error ?? "Token tidak valid. Selesaikan pembayaran dulu ya.");
         }
         setState("invalid");
       } else {
@@ -67,7 +68,7 @@ export default function GachaPage() {
         setState("ready");
       }
     } catch (err) {
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg("Koneksi bermasalah. Coba lagi ya.");
       setState("error");
     }
   };
@@ -104,11 +105,11 @@ export default function GachaPage() {
             router.push(`/result?${params.toString()}`);
           }, 800);
         } else {
-          setErrorMsg(data.error ?? "Failed to open box.");
+          setErrorMsg(data.error ?? "Gagal membuka box.");
           setState("error");
         }
       } catch (err) {
-        setErrorMsg("Network error. Please try again.");
+        setErrorMsg("Koneksi bermasalah. Coba lagi ya.");
         setState("error");
       }
     }, 400);
@@ -119,8 +120,8 @@ export default function GachaPage() {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4 animate-bounce">🔍</div>
-          <p className="font-bold text-gray-500">Checking your token...</p>
+          <Search size={56} className="mx-auto text-pink-400 mb-6 animate-pulse" strokeWidth={1.5} />
+          <p className="font-extrabold text-gray-500 tracking-wide uppercase">Lagi ngecek token kamu...</p>
           <div className="flex gap-2 justify-center mt-4">
             {[0, 1, 2].map((i) => (
               <div
@@ -141,25 +142,23 @@ export default function GachaPage() {
       <main className="relative min-h-screen flex items-center justify-center px-6">
         <StarBackground />
         <div className="relative z-10 text-center max-w-sm">
-          <div className="text-6xl mb-4">
-            {state === "invalid" ? "🚫" : "😭"}
-          </div>
+          <AlertCircle size={64} className="mx-auto text-red-400 mb-4" strokeWidth={1.5} />
           <h2 className="text-2xl font-black text-gray-600 mb-3">
-            {state === "invalid" ? "Access Denied" : "Something Went Wrong"}
+            {state === "invalid" ? "Akses Ditolak" : "Ada yang Salah Nih"}
           </h2>
           <p className="text-sm text-gray-400 font-semibold mb-6 leading-relaxed">
             {errorMsg}
           </p>
           <div className="flex flex-col gap-3">
             <Link href="/group">
-              <button className="w-full btn-primary">Start Fresh 🎁</button>
+              <button className="w-full btn-primary">Mulai Dari Awal</button>
             </Link>
             {state === "error" && (
               <button
                 onClick={() => { setState("validating"); validateToken(); }}
                 className="w-full btn-secondary"
               >
-                Try Again
+                Coba Lagi
               </button>
             )}
           </div>
@@ -172,7 +171,7 @@ export default function GachaPage() {
     <main className="relative min-h-screen px-4 sm:px-6 py-8 sm:py-12 overflow-hidden">
       <StarBackground />
 
-      <div className="relative z-10 max-w-md mx-auto w-full">
+      <div className="relative z-10 max-w-md md:max-w-2xl lg:max-w-4xl mx-auto w-full">
         <ProgressSteps currentStep={3} />
 
         {/* Header */}
@@ -188,35 +187,35 @@ export default function GachaPage() {
             Token: {token}
           </div>
           <h1
-            className="text-2xl sm:text-3xl font-black mb-1 animate-slide_up"
+            className="text-2xl sm:text-3xl font-extrabold mb-1 animate-slide_up tracking-tight"
             style={{ color: "#2D2D2D" }}
           >
-            Choose Your Box
+            Pilih Boxmu
           </h1>
           <p className="text-sm text-gray-400 font-semibold animate-slide_up delay-100">
-            {groupName && `${groupName} Collection · `}Pick one mystery box! 🎁
+            {groupName && `Koleksi ${groupName} · `}Pilih satu mystery box.
           </p>
         </div>
 
         {/* Hint text */}
         <div
-          className="mx-auto mb-6 px-4 py-3 rounded-2xl text-center animate-slide_up delay-200"
+          className="mx-auto mb-6 px-4 py-3 rounded-2xl text-center animate-slide_up delay-200 shadow-sm"
           style={{
-            background: "rgba(255, 255, 255, 0.6)",
-            border: "1px solid rgba(255, 183, 197, 0.3)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(255, 255, 255, 0.8)",
+            border: "1px solid rgba(255, 255, 255, 0.6)",
+            backdropFilter: "blur(12px)",
             maxWidth: "280px",
           }}
         >
-          <p className="text-xs text-gray-400 font-bold">
-            {state === "ready" && "✨ Tap any box to reveal your photocard!"}
-            {state === "selecting" && "🎊 Opening your box..."}
-            {state === "opening" && "✨ Revealing your card..."}
+          <p className="text-xs text-gray-500 font-bold tracking-wide">
+            {state === "ready" && "Ketuk box mana aja buat reveal photocard kamu"}
+            {state === "selecting" && "Lagi buka box..."}
+            {state === "opening" && "Lagi reveal kartunya..."}
           </p>
         </div>
 
         {/* Mystery boxes grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-8 lg:gap-12 mb-8 md:mb-12 w-full max-w-2xl mx-auto">
           {Array.from({ length: 6 }, (_, i) => (
             <div
               key={i}
@@ -239,17 +238,16 @@ export default function GachaPage() {
 
         {/* Equal probability note */}
         <div
-          className="rounded-2xl p-4 text-center animate-slide_up delay-500"
+          className="rounded-2xl p-4 text-center animate-slide_up delay-500 max-w-sm mx-auto shadow-sm flex items-start gap-3"
           style={{
-            background: "rgba(255, 255, 255, 0.5)",
-            border: "1px solid rgba(255, 183, 197, 0.25)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(255, 255, 255, 0.7)",
+            border: "1px solid rgba(255, 255, 255, 0.5)",
+            backdropFilter: "blur(12px)",
           }}
         >
-          <p className="text-xs text-gray-400 font-semibold">
-            🎲 All boxes have <strong>equal probability</strong> — there's no "better" box!
-            <br />
-            Trust your gut and pick one~ 💕
+          <Info size={16} className="text-pink-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-gray-500 font-semibold text-left">
+            Semua box punya <strong>peluang yang sama</strong> — gak ada box yang lebih "bagus". Percayain feeling kamu dan pilih!
           </p>
         </div>
 
@@ -259,15 +257,15 @@ export default function GachaPage() {
             className="fixed inset-0 z-50 flex items-center justify-center"
             style={{ background: "rgba(255, 245, 228, 0.85)", backdropFilter: "blur(12px)" }}
           >
-            <div className="text-center animate-slide_up">
+            <div className="text-center flex flex-col items-center animate-slide_up">
               <div
-                className="text-8xl mb-4"
-                style={{ animation: state === "opening" ? "open_box 0.7s ease-in-out forwards" : "animate-bounce" }}
+                className="mb-8 text-pink-500"
+                style={{ animation: state === "opening" ? "open_box 0.7s ease-in-out forwards" : "animate-bounce_gentle" }}
               >
-                🎁
+                <Gift size={96} strokeWidth={1} />
               </div>
-              <p className="font-black text-xl text-gray-600">
-                {state === "selecting" ? "Opening box..." : "✨ Revealing your card!"}
+              <p className="font-extrabold text-xl text-gray-600 tracking-wide">
+                {state === "selecting" ? "Lagi buka box..." : "Lagi reveal kartu kamu..."}
               </p>
               <div className="flex gap-2 justify-center mt-4">
                 {[0, 1, 2].map((i) => (
@@ -283,5 +281,13 @@ export default function GachaPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function GachaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <GachaContent />
+    </Suspense>
   );
 }

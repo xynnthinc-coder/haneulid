@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Transaction ID is required" }, { status: 400 });
     }
 
-    const tx = getTransactionById(id);
+    const tx = await getTransactionById(id);
     if (!tx) {
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const token = generateGachaToken();
     
-    updateTransaction(id, {
+    await updateTransaction(id, {
       status: "paid",
       token,
     });

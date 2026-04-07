@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  engineType    = "binary"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -22,4 +24,14 @@ model Setting {
   id               String  @id @default("default")
   isActive         Boolean @default(true)
   operationalHours String  @default("08:00 - 22:00")
+}
+
+model Photocard {
+  id      String @id @default(uuid())
+  groupId String
+  name    String
+  image   String
+  stock   Int    @default(0)
+
+  @@unique([groupId, name])
 }

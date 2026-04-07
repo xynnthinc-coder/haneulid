@@ -1,30 +1,27 @@
 "use client";
-// app/payment/page.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Smartphone, CheckCircle2, UploadCloud, CreditCard, Loader2, Home, X, CheckCircle, XCircle, MessageCircle, ImageIcon, Info, Package, Banknote, Download } from "lucide-react";
 import { getGroupById } from "@/lib/groups";
-import TokenDisplay from "@/components/TokenDisplay";
-import StarBackground from "@/components/StarBackground";
 import ProgressSteps from "@/components/ProgressSteps";
+import StarBackground from "@/components/StarBackground";
 
 type PaymentStep = "info" | "upload" | "submitting" | "success" | "error";
 
-export default function PaymentPage() {
+function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const groupId = searchParams.get("group") ?? "";
   const group = getGroupById(groupId);
 
   const [step, setStep] = useState<PaymentStep>("info");
-  const [token, setToken] = useState<string>("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [qrisError, setQrisError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Transaction is created upon submitting proof
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,11 +29,11 @@ export default function PaymentPage() {
 
     const validTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setErrorMsg("Please upload a JPG, PNG, or WebP image.");
+      setErrorMsg("Harap unggah gambar dengan format JPG, PNG, atau WebP.");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMsg("File size must be less than 5MB.");
+      setErrorMsg("Ukuran file maksimal adalah 5MB.");
       return;
     }
 
@@ -49,11 +46,11 @@ export default function PaymentPage() {
 
   const handleSubmitPayment = async () => {
     if (!phoneNumber) {
-      setErrorMsg("Please enter your WhatsApp number.");
+      setErrorMsg("Nomor WhatsApp wajib diisi.");
       return;
     }
     if (!proofFile) {
-      setErrorMsg("Please upload your payment proof first.");
+      setErrorMsg("Bukti pembayaran wajib diunggah.");
       return;
     }
 
@@ -74,27 +71,27 @@ export default function PaymentPage() {
       if (data.success) {
         setStep("success");
       } else {
-        setErrorMsg(data.error ?? "Failed to submit payment. Please try again.");
+        setErrorMsg(data.error ?? "Gagal memproses pembayaran. Silakan coba lagi.");
         setStep("error");
       }
     } catch (err) {
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg("Koneksi bermasalah. Silakan coba lagi.");
       setStep("error");
     }
   };
 
-  const navigateToHome = () => {
-    router.push("/");
-  };
-
   if (!group) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <p className="text-6xl mb-4">😢</p>
-          <h2 className="text-xl font-bold text-gray-600 mb-4">Group not found!</h2>
+      <main className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
+        <StarBackground />
+        <div className="relative z-10 text-center max-w-sm w-full p-8 glass-panel rounded-3xl">
+          <XCircle size={48} className="text-gray-300 mx-auto mb-4" strokeWidth={1.5} />
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Grup Tidak Ditemukan</h2>
+          <p className="text-gray-500 mb-6 text-sm">Grup yang Anda cari mungkin tidak tersedia atau tautan tidak valid.</p>
           <Link href="/group">
-            <button className="btn-primary">Choose a Group</button>
+            <button className="w-full btn-primary py-3">
+              Pilih Grup
+            </button>
           </Link>
         </div>
       </main>
@@ -102,323 +99,308 @@ export default function PaymentPage() {
   }
 
   return (
-    <main className="relative min-h-screen px-4 sm:px-6 py-8 sm:py-12 overflow-hidden">
+    <main className="relative min-h-screen px-4 sm:px-6 py-6 sm:py-10 selection:bg-pink-100 selection:text-pink-900 overflow-hidden">
       <StarBackground />
-
-      <div className="relative z-10 max-w-md mx-auto w-full">
-        {/* Back button */}
+      <div className="relative z-10 max-w-4xl lg:max-w-5xl mx-auto w-full">
+        {/* Back navigation */}
         <Link
           href="/group"
-          className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-pink-400 transition-colors mb-6"
+          className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-pink-500 transition-colors mb-8"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-          Change Group
+          <ArrowLeft size={16} />
+          Kembali ke Pilihan Grup
         </Link>
+        <div className="mb-8">
+            <ProgressSteps currentStep={2} />
+        </div>
 
-        {/* Progress steps */}
-        <ProgressSteps currentStep={2} />
-
-        {/* ===== STEP: INFO ===== */}
+        {/* ===== STEP: INFO & UPLOAD ===== */}
         {(step === "info" || step === "upload") && (
-          <>
-            {/* Header */}
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-black mb-1" style={{ color: "#2D2D2D" }}>
-                Complete Payment
+          <div className="animate-slide_up">
+            <div className="mb-8 pl-1">
+              <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight mb-2" style={{ color: "#2D2D2D" }}>
+                Pembayaran
               </h1>
-              <p className="text-sm text-gray-400 font-semibold">
-                Almost there! Pay to open your mystery box~
+              <p className="text-gray-500 font-semibold text-sm lg:text-base">
+                Selesaikan pembayaran untuk mengklaim Gacha Token kamu.
               </p>
             </div>
 
-            {/* Order summary card */}
-            <div
-              className="rounded-3xl p-5 mb-5"
-              style={{
-                background: "rgba(255, 255, 255, 0.7)",
-                border: "2px solid rgba(255, 183, 197, 0.4)",
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-3xl">{group.emoji}</span>
-                <div>
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest">
-                    Selected Group
-                  </p>
-                  <p className="font-black text-xl" style={{ color: "#2D2D2D" }}>
-                    {group.name}
-                  </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-8">
+              {/* Left Column - Order Summary & QRIS */}
+              <div className="lg:col-span-5 flex flex-col gap-5 sm:gap-6">
+                {/* Order Summary Form */}
+                <div className="glass-panel border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-3xl p-5 sm:p-6 h-auto">
+                  <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-1.5">
+                    <Package size={14} className="text-gray-400" />
+                    Ringkasan Pesanan
+                  </h3>
+                  
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-inner flex-shrink-0" style={{ border: `2px solid ${group.color}40` }}>
+                      <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-800 flex items-center gap-2 text-lg">
+                        {group.name}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-500 mt-0.5">Mystery Box</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-5 border-t border-dashed border-pink-200">
+                    <div className="flex items-center justify-between text-gray-600 text-sm font-semibold">
+                      <span>1x Token Gacha</span>
+                      <span className="font-bold text-gray-800">Rp 10.000</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-6 pt-5 border-t border-dashed border-pink-200">
+                    <span className="font-extrabold text-gray-800 flex items-center gap-1.5">
+                      <Banknote size={16} className="text-pink-500" />
+                      Total Tagihan
+                    </span>
+                    <span className="font-extrabold text-xl text-pink-500">
+                      Rp 10.000
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between py-3 border-t border-dashed border-pink-200">
-                <span className="text-sm font-semibold text-gray-500">Blind Box × 1</span>
-                <span className="font-black text-lg" style={{ color: "#FF5C8A" }}>
-                  Rp10.000
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-sm font-bold text-gray-600">Total</span>
-                <span className="font-black text-xl" style={{ color: "#FF5C8A" }}>
-                  Rp10.000
-                </span>
-              </div>
-            </div>
+                {/* QRIS Card */}
+                <div className="glass-panel border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-3xl p-5 sm:p-6 relative overflow-hidden">
+                  <div className="absolute top-[-50px] right-[-50px] w-40 h-40 bg-pink-100 rounded-full blur-3xl z-0 opacity-40"></div>
+                  
+                  <h3 className="text-[15px] font-extrabold text-gray-800 flex items-center gap-2 mb-5 relative z-10">
+                    <Smartphone size={20} className="text-blue-400" /> 
+                    Pembayaran via QRIS
+                  </h3>
 
+                  <div className="flex justify-center mb-6 relative z-10">
+                    {!qrisError ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="bg-white/30 p-3 rounded-2xl shadow-[inset_0_2px_10px_rgba(255,255,255,0.4)] border border-white/30 backdrop-blur-md">
+                           <img
+                            src="/qris.jpg"
+                            alt="Kode QRIS"
+                            className="w-40 h-40 object-contain rounded-xl mix-blend-multiply"
+                            onError={() => setQrisError(true)}
+                          />
+                        </div>
+                        <a
+                          href="/qris.jpg"
+                          download="QRIS_GachaBox.jpg"
+                          className="flex items-center gap-1.5 text-xs font-bold text-pink-500 hover:text-pink-600 bg-white/50 hover:bg-white/80 px-4 py-2 rounded-full border border-pink-200 transition-all shadow-sm cursor-pointer"
+                        >
+                          <Download size={14} />
+                          Simpan QRIS
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="w-40 h-40 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 flex flex-col items-center justify-center text-center p-4">
+                        <Smartphone size={32} className="text-gray-400 mb-2" strokeWidth={1.5} />
+                        <p className="text-xs text-gray-500 font-semibold">QRIS <br/> Tidak Tersedia</p>
+                      </div>
+                    )}
+                  </div>
 
-            {/* QRIS Payment section */}
-            <div
-              className="rounded-3xl p-5 mb-5"
-              style={{
-                background: "rgba(255, 255, 255, 0.7)",
-                border: "2px solid rgba(184, 224, 255, 0.4)",
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              <h3 className="font-bold text-gray-600 mb-3 flex items-center gap-2">
-                <span>📱</span> Payment via QRIS
-              </h3>
-
-              {/* QRIS placeholder */}
-              <div
-                className="rounded-2xl overflow-hidden mb-4 mx-auto"
-                style={{ maxWidth: "200px" }}
-              >
-                <img
-                  src="/qris.jpg"
-                  alt="QRIS Payment Code"
-                  className="w-full"
-                  onError={(e) => {
-                    // Show placeholder if QRIS image not found
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-                {/* Fallback QRIS placeholder */}
-                <div
-                  className="flex items-center justify-center rounded-2xl"
-                  style={{
-                    width: "100%",
-                    aspectRatio: "1",
-                    background: "linear-gradient(135deg, #f0f0f0, #e0e0e0)",
-                    border: "3px solid #FFB7C5",
-                  }}
-                >
-                  <div className="text-center p-4">
-                    <p className="text-4xl mb-2">📲</p>
-                    <p className="text-xs text-gray-400 font-semibold leading-snug">
-                      QRIS Payment
-                      <br />
-                      Code Here
-                    </p>
+                  <div className="space-y-3 relative z-10 bg-white/20 shadow-[inset_0_2px_5px_rgba(255,255,255,0.3)] backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-white/30">
+                     <p className="mb-2 text-xs font-bold text-gray-600 flex items-center gap-1.5">
+                       <Info size={14} className="text-blue-400" />
+                       Cara Bayar:
+                     </p>
+                     <div className="flex gap-3 text-xs sm:text-sm text-gray-700 font-semibold">
+                       <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white/40 shadow-sm text-gray-700 text-[10px] font-bold shrink-0 border border-white/50">1</span>
+                       <span>Scan QRIS pakai e-wallet atau m-banking.</span>
+                     </div>
+                     <div className="flex gap-3 text-xs sm:text-sm text-gray-700 font-semibold">
+                       <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white/40 shadow-sm text-gray-700 text-[10px] font-bold shrink-0 border border-white/50">2</span>
+                       <span>Lakukan pembayaran Rp 10.000.</span>
+                     </div>
+                     <div className="flex gap-3 text-xs sm:text-sm text-gray-700 font-semibold">
+                       <span className="flex items-center justify-center w-5 h-5 rounded-full bg-white/40 shadow-sm text-gray-700 text-[10px] font-bold shrink-0 border border-white/50">3</span>
+                       <span>Simpan & upload bukti pembayarannya.</span>
+                     </div>
                   </div>
                 </div>
               </div>
 
-              <div
-                className="rounded-2xl p-3 text-xs text-gray-500 font-semibold leading-relaxed"
-                style={{ background: "rgba(255, 245, 228, 0.8)" }}
-              >
-                <p className="mb-1">📌 Payment Instructions:</p>
-                <ol className="list-decimal list-inside space-y-1">
-                  <li>Open your mobile banking / e-wallet app</li>
-                  <li>Scan the QRIS code above</li>
-                  <li>Enter the amount: <strong>Rp10.000</strong></li>
-                  <li>Complete the payment</li>
-                  <li>Take a screenshot of the receipt</li>
-                  <li>Upload the screenshot below</li>
-                </ol>
-              </div>
-            </div>
+              {/* Right Column - Upload & Confirm */}
+              <div className="lg:col-span-7 flex flex-col h-full">
+                <div className="glass-panel border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] rounded-3xl p-5 sm:p-6 lg:p-8 h-full flex flex-col">
+                  <h2 className="text-lg font-extrabold text-gray-800 mb-6 flex items-center gap-2">
+                    <CheckCircle2 size={20} className="text-green-500" />
+                    Konfirmasi Pembayaran
+                  </h2>
+                  
+                  <div className="space-y-6 flex-grow">
+                    {/* Phone Number Field */}
+                    <div>
+                      <label htmlFor="phone" className="text-sm font-extrabold text-gray-700 mb-2 flex items-center gap-1.5">
+                        <MessageCircle size={16} className="text-indigo-400" />
+                        Nomor WhatsApp
+                      </label>
+                      <input
+                        id="phone"
+                        type="tel"
+                        placeholder="Contoh: 081234567890"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-2xl text-sm font-bold transition-all placeholder-gray-500/60 text-gray-800 glass-input focus:ring-2 focus:ring-pink-300"
+                      />
+                      <p className="mt-2.5 text-xs font-semibold text-gray-500 flex items-center gap-1.5">
+                        <CheckCircle2 size={14} className="text-green-400" />
+                        Gacha Token akan dikirim ke nomor ini lewat WhatsApp.
+                      </p>
+                    </div>
 
-            {/* User Input Section (WhatsApp Number) */}
-            <div
-              className="rounded-3xl p-5 mb-5"
-              style={{
-                background: "rgba(255, 255, 255, 0.7)",
-                border: "2px solid rgba(255, 183, 197, 0.4)",
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              <h3 className="font-bold text-gray-600 mb-3 flex items-center gap-2">
-                <span>💬</span> WhatsApp Number
-              </h3>
-              <p className="text-xs text-gray-500 font-semibold mb-3">
-                Your token will be sent instantly to this number once payment is verified!
-              </p>
-              <input
-                type="tel"
-                placeholder="e.g. 081234567890"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl text-sm font-semibold outline-none"
-                style={{
-                  background: "rgba(255,255,255,0.9)",
-                  border: "2px solid rgba(255,183,197,0.5)",
-                  color: "#2D2D2D",
-                }}
-              />
-            </div>
+                    {/* Upload Field */}
+                    <div>
+                      <div className="flex justify-between items-end mb-2">
+                        <label className="text-sm font-extrabold text-gray-700 flex items-center gap-1.5">
+                          <ImageIcon size={16} className="text-purple-400" />
+                          Bukti Transfer
+                        </label>
+                        {proofFile && (
+                           <button 
+                             onClick={() => fileInputRef.current?.click()}
+                             className="text-xs font-bold text-pink-500 hover:text-pink-600 transition-colors"
+                           >
+                             Ganti File
+                           </button>
+                        )}
+                      </div>
+                      
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg, image/png, image/webp"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
 
-            {/* Upload section */}
-            <div
-              className="rounded-3xl p-5 mb-6"
-              style={{
-                background: "rgba(255, 255, 255, 0.7)",
-                border: "2px solid rgba(229, 196, 255, 0.4)",
-                backdropFilter: "blur(12px)",
-              }}
-            >
-              <h3 className="font-bold text-gray-600 mb-3 flex items-center gap-2">
-                <span>📸</span> Upload Payment Proof
-              </h3>
+                      {proofPreview ? (
+                        <div className="relative rounded-2xl overflow-hidden shadow-sm group border border-white/50">
+                          <img 
+                            src={proofPreview} 
+                            alt="Bukti pembayaran" 
+                            className="w-full h-48 lg:h-64 object-cover" 
+                          />
+                          <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]"></div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full rounded-2xl p-10 transition-all flex flex-col items-center justify-center hover:scale-[1.02] backdrop-blur-sm shadow-[inset_0_2px_10px_rgba(255,255,255,0.3)] bg-white/10 hover:bg-white/20 border border-white/30"
+                        >
+                          <div className="w-14 h-14 bg-white/40 rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-white/40">
+                            <UploadCloud size={28} className="text-purple-500" strokeWidth={1.5} />
+                          </div>
+                          <p className="text-sm font-extrabold text-gray-700 mb-1">Ketuk untuk upload bukti pembayaran</p>
+                          <p className="text-xs text-gray-500 font-semibold">Format: JPG, PNG, WebP (Maks 5MB)</p>
+                        </button>
+                      )}
+                      
+                      {errorMsg && (
+                        <div className="mt-3 bg-red-400/10 border border-red-400/20 text-red-500 text-xs font-bold p-3 rounded-xl flex items-start gap-2 backdrop-blur-md">
+                          <XCircle size={14} className="shrink-0 mt-0.5" />
+                          <p>{errorMsg}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-
-              {proofPreview ? (
-                <div className="mb-3">
-                  <div className="relative rounded-2xl overflow-hidden" style={{ maxHeight: "180px" }}>
-                    <img src={proofPreview} alt="Payment proof" className="w-full object-cover" />
+                  <div className="mt-8 pt-6 border-t border-dashed border-pink-200">
                     <button
-                      onClick={() => { setProofFile(null); setProofPreview(null); }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                      style={{ background: "rgba(255, 92, 138, 0.9)" }}
+                      onClick={handleSubmitPayment}
+                      disabled={!proofFile || !phoneNumber}
+                      className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-pink-200"
                     >
-                      ✕
+                      <CreditCard size={18} />
+                      <span className="font-extrabold tracking-wide">Konfirmasi & Kirim</span>
                     </button>
+                    {!proofFile && (
+                      <p className="text-center text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-widest">
+                        Upload Bukti Pembayaran Untuk Melanjutkan
+                      </p>
+                    )}
                   </div>
-                  <p className="text-xs text-green-500 font-semibold mt-2 text-center">
-                    ✓ {proofFile?.name}
-                  </p>
                 </div>
-              ) : (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-2xl py-8 text-center transition-all duration-200 hover:scale-[1.02]"
-                  style={{
-                    border: "2px dashed #E5C4FF",
-                    background: "rgba(229, 196, 255, 0.1)",
-                  }}
-                >
-                  <span className="text-3xl block mb-2">📁</span>
-                  <span className="text-sm font-bold text-gray-400">
-                    Tap to upload proof of payment
-                  </span>
-                  <br />
-                  <span className="text-xs text-gray-300">JPG, PNG, WebP (max 5MB)</span>
-                </button>
-              )}
-
-              {errorMsg && (
-                <p className="text-xs text-red-400 font-semibold mt-2 text-center">{errorMsg}</p>
-              )}
+              </div>
             </div>
-
-            {/* Submit button */}
-            <button
-              onClick={handleSubmitPayment}
-              disabled={!proofFile}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span>💳</span>
-                <span>Submit Payment Proof</span>
-              </span>
-            </button>
-          </>
+          </div>
         )}
 
         {/* ===== STEP: SUBMITTING ===== */}
         {step === "submitting" && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="text-6xl mb-6 animate-bounce">⏳</div>
-            <h2 className="text-2xl font-black text-gray-600 mb-2">Verifying Payment...</h2>
-            <p className="text-sm text-gray-400 font-semibold">
-              Please wait while we confirm your payment~
+          <div className="flex flex-col items-center justify-center min-h-[50vh] glass-panel rounded-3xl p-8 sm:p-12 animate-slide_up">
+            <Loader2 className="w-12 h-12 text-pink-400 animate-spin mb-6" />
+            <h2 className="text-2xl font-extrabold text-gray-800 mb-3 text-center">Memverifikasi Pembayaran</h2>
+            <p className="text-gray-500 text-center max-w-sm font-semibold">
+              Bentar ya, sistem lagi ngecek detail pembayaran kamu.
             </p>
-            <div className="mt-6 flex gap-2">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="w-3 h-3 rounded-full animate-bounce"
-                  style={{
-                    background: "#FFB7C5",
-                    animationDelay: `${i * 0.2}s`,
-                  }}
-                />
-              ))}
-            </div>
           </div>
         )}
 
         {/* ===== STEP: SUCCESS ===== */}
         {step === "success" && (
-          <div className="flex flex-col items-center text-center animate-slide_up">
-            {/* Success icon */}
-            <div
-              className="w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-6 animate-bounce_gentle"
+          <div className="flex flex-col items-center justify-center min-h-[50vh] glass-panel rounded-3xl p-8 sm:p-16 animate-slide_up">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 animate-bounce_gentle"
               style={{
                 background: "linear-gradient(135deg, #C4F5E0, #7ADDB8)",
                 boxShadow: "0 12px 32px rgba(122, 221, 184, 0.4)",
               }}
             >
-              ⏳
+              <CheckCircle className="w-10 h-10 text-green-600" strokeWidth={2} />
             </div>
-
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-700 mb-2">
-              Payment Pending 🎉
+            <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-800 mb-3 text-center" style={{ color: "#2D2D2D" }}>
+              Pembayaran Terkirim
             </h2>
-            <p className="text-sm text-gray-400 font-semibold mb-6">
-              Please wait while our admin verifies your payment!
-            </p>
-
-            {/* Instruction */}
-            <div
-              className="w-full rounded-2xl p-4 mb-6"
-              style={{ background: "rgba(255, 255, 255, 0.6)", border: "1px dashed #FFB7C5" }}
-            >
-              <p className="text-xs text-gray-600 font-semibold leading-relaxed">
-                We're checking your payment proof. Once approved, we will send your 
-                <strong> Gacha Token </strong> directly to your WhatsApp! 💕
+            <div className="w-full max-w-sm rounded-2xl p-4 mb-8" style={{ background: "rgba(255, 255, 255, 0.6)", border: "1px dashed #FFB7C5" }}>
+              <p className="text-sm text-gray-600 text-center font-semibold leading-relaxed">
+                Tim admin akan segera memverifikasi transaksi kamu. <strong>Gacha Token</strong> lho akan otomatis dikirim ke <strong>WhatsApp</strong> kamu jika pembayaran valid.
               </p>
             </div>
 
-            {/* CTA */}
             <button
-              onClick={navigateToHome}
-              className="w-full btn-primary text-xl py-5"
+              onClick={() => router.push("/")}
+              className="btn-primary py-4 px-8 flex items-center justify-center gap-2 text-lg"
             >
-              <span className="flex items-center justify-center gap-3">
-                <span>🎁</span>
-                <span>Back to Home</span>
-              </span>
+              <Home size={18} />
+              Kembali ke Beranda
             </button>
           </div>
         )}
 
         {/* ===== STEP: ERROR ===== */}
         {step === "error" && (
-          <div className="flex flex-col items-center text-center animate-slide_up">
-            <div className="text-6xl mb-4">😭</div>
-            <h2 className="text-2xl font-black text-gray-600 mb-2">Oops!</h2>
-            <p className="text-sm text-red-400 font-semibold mb-6">{errorMsg}</p>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] glass-panel rounded-3xl p-8 sm:p-16 animate-slide_up">
+            <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
+              <XCircle className="w-10 h-10 text-red-400" strokeWidth={1.5} />
+            </div>
+            <h2 className="text-2xl lg:text-3xl font-extrabold text-gray-800 mb-3 text-center">
+              Duh, Ada Masalah!
+            </h2>
+            <p className="text-gray-500 text-center font-semibold max-w-md mb-8 leading-relaxed text-sm">
+              {errorMsg || "Sistem tidak dapat memproses permintaan ini. Pastikan koneksi stabil dan coba kembali."}
+            </p>
+
             <button
               onClick={() => { setStep("info"); setErrorMsg(""); }}
-              className="btn-primary"
+              className="btn-primary py-4 px-8"
             >
-              Try Again
+              Ulangi Proses
             </button>
           </div>
         )}
       </div>
     </main>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-pink-500 w-8 h-8" /></div>}>
+      <PaymentContent />
+    </Suspense>
   );
 }

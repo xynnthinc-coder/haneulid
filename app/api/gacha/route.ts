@@ -4,13 +4,7 @@ import {
   getTransactionByToken,
   updateTransaction,
 } from "@/lib/transactionStore";
-import gachaPool from "@/data/gachaPool.json";
-
-type GachaPool = {
-  [key: string]: Array<{ name: string; image: string }>;
-};
-
-const pool = gachaPool as GachaPool;
+import { getAvailableByGroup, decrementStock } from "@/lib/photocardStore";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate token
-    const transaction = getTransactionByToken(token);
+    const transaction = await getTransactionByToken(token);
 
     if (!transaction) {
       return NextResponse.json(
@@ -50,22 +44,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get photocard pool for this group
-    const groupPool = pool[transaction.group];
+    // Get available photocards (stock > 0) for this group from DB
+    const availableCards = await getAvailableByGroup(transaction.group);
 
-    if (!groupPool || groupPool.length === 0) {
+    if (!availableCards || availableCards.length === 0) {
       return NextResponse.json(
-        { error: "No photocards available for this group." },
+        { error: "All photocards for this group are sold out! 😢" },
+        { status: 400 }
+      );
+    }
+
+    // Equal probability random selection from available cards
+    const randomIndex = Math.floor(Math.random() * availableCards.length);
+    const selectedCard = availableCards[randomIndex];
+
+    // Decrement stock
+    const decremented = await decrementStock(selectedCard.id);
+    if (!decremented) {
+      return NextResponse.json(
+        { error: "Failed to process gacha. Please try again." },
         { status: 500 }
       );
     }
 
-    // Equal probability random selection
-    const randomIndex = Math.floor(Math.random() * groupPool.length);
-    const selectedCard = groupPool[randomIndex];
-
     // Mark token as used
-    updateTransaction(token, {
+    await updateTransaction(transaction.id, {
       status: "used",
       used: true,
     });
@@ -97,7 +100,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Token is required" }, { status: 400 });
   }
 
-  const transaction = getTransactionByToken(token);
+  const transaction = await getTransactionByToken(token);
 
   if (!transaction) {
     return NextResponse.json({ valid: false, error: "Token not found" });
