@@ -12,12 +12,12 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "✨ K-Pop Gacha Box | Blind Box Photocard Kamu",
+  title: "Haneul Gacha Box | Blind Box Photocard Kamu",
   description:
     "Buka mystery blind box dan dapetin photocard K-pop eksklusif dari grup favorit kamu!",
   keywords: "kpop, gacha, photocard, blind box, NCT, BTS, SEVENTEEN, Stray Kids",
   openGraph: {
-    title: "✨ K-Pop Gacha Box",
+    title: "Haneul Gacha Box",
     description: "Dapetin photocard mystery dari grup K-pop favorit kamu!",
     type: "website",
   },
